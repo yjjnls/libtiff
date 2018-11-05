@@ -19,7 +19,7 @@ class LibtiffConan(ConanFile):
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {'shared': False, 'fPIC': True}
+    default_options = {'shared': True, 'fPIC': True}
     requires = "zlib/1.2.11@conanos/dev"
 
     _source_subfolder = "source_subfolder"
