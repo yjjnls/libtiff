@@ -4,7 +4,7 @@
 from conans import ConanFile, CMake, tools
 import os
 import shutil
-
+from conanos.build import config_scheme
 
 class LibtiffConan(ConanFile):
     name = "libtiff"
@@ -19,15 +19,19 @@ class LibtiffConan(ConanFile):
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = {'shared': True, 'fPIC': True}
-    requires = "zlib/1.2.11@conanos/dev"
+    default_options = 'shared=False', 'fPIC=True'
+    requires = "zlib/1.2.11@conanos/stable"
 
     _source_subfolder = "source_subfolder"
 
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.remove("fPIC")
+
+    def configure(self):
         del self.settings.compiler.libcxx
+
+        config_scheme(self)
 
     def source(self):
         tools.get("http://download.osgeo.org/libtiff/tiff-{0}.zip".format(self.version))

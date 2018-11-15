@@ -1,8 +1,8 @@
 ## Package Status
 
-| Bintray | Appveyor | Travis | 
-|---------|-----------|--------|
-|[![Download](https://api.bintray.com/packages/bincrafters/public-conan/libtiff%3Abincrafters/images/download.svg)](https://bintray.com/bincrafters/public-conan/libtiff%3Abincrafters/_latestVersion)|[![Build status](https://ci.appveyor.com/api/projects/status/github/bincrafters/conan-libtiff?svg=true)](https://ci.appveyor.com/project/BinCrafters/conan-libtiff)|[![Build Status](https://travis-ci.org/bincrafters/conan-libtiff.svg)](https://travis-ci.org/bincrafters/conan-libtiff)|
+| Appveyor | Travis | 
+|-----------|--------|
+|[![Build status](https://ci.appveyor.com/api/projects/status/github/conanos/libtiff?svg=true)](https://ci.appveyor.com/project/conanos/libtiff)|[![Build Status](https://travis-ci.org/conanos/libtiff.svg)](https://travis-ci.org/conanos/libtiff)|
 
 ## Conan.io Information
 
