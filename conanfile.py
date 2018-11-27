@@ -6,6 +6,12 @@ import os
 import shutil
 from conanos.build import config_scheme
 
+try:
+    import conanos.conan.hacks.cmake
+except:
+    if os.environ.get('EMSCRIPTEN_VERSIONS'):
+        raise Exception(
+            'Please use pip install conanos to patch conan for emscripten binding !')
 class LibtiffConan(ConanFile):
     name = "libtiff"
     description = "Library for Tag Image File Format (TIFF)"
