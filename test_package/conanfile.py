@@ -9,6 +9,12 @@ class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
 
+    def is_emscripten(self):
+        try:
+            return self.settings.compiler == 'emcc'
+        except:
+            return False
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
@@ -16,4 +22,7 @@ class TestPackageConan(ConanFile):
 
     def test(self):
         bin_path = os.path.join("bin", "test_package")
+        if self.is_emscripten():
+            self.run("node %s.js"%bin_path)
+            return
         self.run(bin_path, run_environment=True)
