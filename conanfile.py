@@ -30,6 +30,12 @@ class LibtiffConan(ConanFile):
 
     _source_subfolder = "source_subfolder"
 
+    def is_emscripten(self):
+        try:
+            return self.settings.compiler == 'emcc'
+        except:
+            return False
+
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.remove("fPIC")
@@ -37,7 +43,11 @@ class LibtiffConan(ConanFile):
     def configure(self):
         del self.settings.compiler.libcxx
 
-        config_scheme(self)
+        if self.is_emscripten():
+            del self.settings.os
+            del self.settings.arch
+            self.options.remove("fPIC")
+            self.options.remove("shared")
 
     def source(self):
         tools.get("http://download.osgeo.org/libtiff/tiff-{0}.zip".format(self.version))
@@ -56,20 +66,23 @@ class LibtiffConan(ConanFile):
 
         cmake.definitions["lzma"] = False
         cmake.definitions["jpeg"] = False
-        if self.options.shared and self.settings.compiler == "Visual Studio":
+        if not self.is_emscripten() and self.options.shared and self.settings.compiler == "Visual Studio":
             # https://github.com/Microsoft/vcpkg/blob/master/ports/tiff/fix-cxx-shared-libs.patch
             tools.replace_in_file(os.path.join(self._source_subfolder, 'libtiff', 'CMakeLists.txt'),
                                   r'set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION})',
                                   r'set_target_properties(tiffxx PROPERTIES SOVERSION ${SO_COMPATVERSION} '
                                   r'WINDOWS_EXPORT_ALL_SYMBOLS ON)')
 
-        if self.settings.os == "Windows" and self.settings.compiler != "Visual Studio" and self.version == '4.0.8':
+        if not self.is_emscripten() and self.settings.os == "Windows" and self.settings.compiler != "Visual Studio" and self.version == '4.0.8':
             # only one occurence must be patched. fixed in 4.0.9
             tools.replace_in_file(os.path.join(self._source_subfolder, "CMakeListsOriginal.txt"),
                                   "if (UNIX)",
                                   "if (UNIX OR MINGW)")
 
-        cmake.definitions["BUILD_SHARED_LIBS"] = self.options.shared
+        if self.is_emscripten():
+            cmake.definitions['STATIC'] = False
+
+        cmake.definitions["BUILD_SHARED_LIBS"] = True if self.is_emscripten() else self.options.shared
         cmake.configure(source_folder=self._source_subfolder)
         cmake.build()
         cmake.install()
@@ -91,9 +104,9 @@ class LibtiffConan(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["tiff", "tiffxx"]
-        if self.settings.os == "Windows" and self.settings.build_type == "Debug" and self.settings.compiler == 'Visual Studio':
+        if not self.is_emscripten() and self.settings.os == "Windows" and self.settings.build_type == "Debug" and self.settings.compiler == 'Visual Studio':
             self.cpp_info.libs = [lib+'d' for lib in self.cpp_info.libs]
-        if self.options.shared and self.settings.os == "Windows" and self.settings.compiler != 'Visual Studio':
+        if not self.is_emscripten() and self.options.shared and self.settings.os == "Windows" and self.settings.compiler != 'Visual Studio':
             self.cpp_info.libs = [lib+'.dll' for lib in self.cpp_info.libs]
-        if self.settings.os == "Linux":
+        if not self.is_emscripten() and self.settings.os == "Linux":
             self.cpp_info.libs.append("m")
